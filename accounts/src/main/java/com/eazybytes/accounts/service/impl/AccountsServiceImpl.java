@@ -7,10 +7,13 @@ import java.util.Random;
 import org.springframework.stereotype.Service;
 
 import com.eazybytes.accounts.constants.AccountsConstants;
+import com.eazybytes.accounts.dto.AccountsDto;
 import com.eazybytes.accounts.dto.CustomerDto;
 import com.eazybytes.accounts.entity.Accounts;
 import com.eazybytes.accounts.entity.Customer;
 import com.eazybytes.accounts.exception.CustomerAlreadyException;
+import com.eazybytes.accounts.exception.ResourceNotFoundException;
+import com.eazybytes.accounts.mapper.AccountsMapper;
 import com.eazybytes.accounts.mapper.CustomerMapper;
 import com.eazybytes.accounts.repository.AccountsRepository;
 import com.eazybytes.accounts.repository.CustomerRepository;
@@ -51,6 +54,22 @@ public class AccountsServiceImpl implements IAccountsService {
         newAccount.setCreatedAt(LocalDateTime.now());
         newAccount.setCreatedBy("Anonymous");
         return newAccount;
+    }
+
+    @Override
+    public CustomerDto fetchAccount(String mobileNumber) {
+      Customer customer = customerRepository.findByMobileNumber(mobileNumber).orElseThrow(
+        () -> new ResourceNotFoundException("Customer", "mobileNumber", mobileNumber)
+      );
+
+      Accounts accounts = accountsRepository.findByCustomerId(customer.getCustomerId()).orElseThrow(
+        () -> new ResourceNotFoundException("Account", "customerID",customer.getCustomerId().toString())
+      );
+
+      CustomerDto customerDto = CustomerMapper.mapToCustomerDto(customer, new CustomerDto());
+      customerDto.setAccountsDto(AccountsMapper.mapToAccountDto(accounts, new AccountsDto()));
+
+      return customerDto;
     }
     
 }
