@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.eazybytes.loans.constants.LoansConstants;
 import com.eazybytes.loans.entity.Loans;
-import com.eazybytes.loans.entity.LoansRepository;
 import com.eazybytes.loans.exception.LoanAlreadyExistsException;
+import com.eazybytes.loans.repository.LoansRepository;
 import com.eazybytes.loans.service.ILoansService;
 
 import lombok.AllArgsConstructor;
@@ -22,6 +22,10 @@ public class LoansServiceImpl implements ILoansService {
 
     @Override
     public void createLoan(String mobileNumber) {
+        Optional<Loans> optionalLoans = loansRepository.findByMobileNumber(mobileNumber);
+        if(optionalLoans.isPresent()) {
+            throw new LoanAlreadyExistsException("Loan already registered with with given mobileNumber " + mobileNumber);
+        }
         loansRepository.save(createNewLoan(mobileNumber));
     }
 
@@ -40,5 +44,5 @@ public class LoansServiceImpl implements ILoansService {
         return newLoan;
 
     }
-    
+   
 }

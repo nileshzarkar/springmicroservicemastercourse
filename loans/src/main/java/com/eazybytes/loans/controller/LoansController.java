@@ -24,7 +24,6 @@ public class LoansController {
     @PostMapping("/create")
     public ResponseEntity<ResponseDto> createLoan(@RequestParam String mobileNumber) 
     {
-
         iLoansService.createLoan(mobileNumber);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
